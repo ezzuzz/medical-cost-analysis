@@ -1,5 +1,3 @@
-
-```markdown
 # Анализ медицинских расходов и прогнозирование страховых выплат 🏥💰
 
 Проект посвящен анализу факторов, влияющих на медицинские расходы, и построению ML-модели для прогнозирования индивидуальных страховых выплат (charges) на основе демографических данных и образа жизни клиента.
@@ -32,9 +30,11 @@
 
 Полный ML-цикл в проекте:
 
+
 ```
 Data -> Preprocessing -> Feature Engineering -> EDA -> Model -> Evaluation -> Interpretation
 ```
+
 
 Что сделано:
 
@@ -74,7 +74,6 @@ Data -> Preprocessing -> Feature Engineering -> EDA -> Model -> Evaluation -> In
 ```python
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
-```
 
 Основные поля датасета:
 
