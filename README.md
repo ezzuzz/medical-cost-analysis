@@ -73,9 +73,9 @@ Data -> Preprocessing -> Feature Engineering -> EDA -> Model -> Evaluation -> In
 
 ```python
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
-df = pd.read_csv(url)```
+df = pd.read_csv(url)
 
-Основные поля датасета:
+## Основные поля датасета:
 
 | Поле | Описание |
 |------|----------|
