@@ -71,11 +71,10 @@ Data -> Preprocessing -> Feature Engineering -> EDA -> Model -> Evaluation -> In
 
 Датасет загружается напрямую из GitHub:
 
-```python
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
 
-## Основные поля датасета:
+Основные поля датасета:
 
 | Поле | Описание |
 |------|----------|
@@ -89,34 +88,25 @@ df = pd.read_csv(url)
 
 ## Структура проекта
 
-```
 medical_cost_analysis/
-│
 ├── MedicalCost_Analysis.ipynb
 ├── README.md
 ├── requirements.txt
-│
-├── figures/
-│   ├── distribution_charges.png
-│   ├── smoker_boxplot.png
-│   ├── age_bmi_scatter.png
-│   ├── correlation_heatmap.png
-│   ├── category_barplots.png
-│   └── feature_importance.png
-│
-└── models/
-    └── medical_cost_model.pkl
-```
+├── medical_cost_model.pkl
+└── figures/
+    ├── distribution_charges.png
+    ├── smoker_boxplot.png
+    ├── age_bmi_scatter.png
+    ├── correlation_heatmap.png
+    ├── category_barplots.png
+    └── feature_importance.png
 
 ## Установка и запуск
 
 Клонирование репозитория:
 
-```bash
 git clone https://github.com/ваш-username/medical_cost_analysis.git
 cd medical_cost_analysis
-```
-
 Установка зависимостей:
 
 ```bash
