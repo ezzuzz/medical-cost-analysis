@@ -1,5 +1,4 @@
 
-```markdown
 # Анализ медицинских расходов и прогнозирование страховых выплат 🏥💰
 
 ![medical_cost](https://img.shields.io/badge/Project-Medical%20Cost%20Prediction-blue)
