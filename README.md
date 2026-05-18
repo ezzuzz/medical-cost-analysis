@@ -71,8 +71,10 @@ Data -> Preprocessing -> Feature Engineering -> EDA -> Model -> Evaluation -> In
 
 Датасет загружается напрямую из GitHub:
 
+```python
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
+```
 
 Основные поля датасета:
 
