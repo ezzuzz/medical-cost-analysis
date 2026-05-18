@@ -85,9 +85,9 @@ df = pd.read_csv(url)
 | smoker | статус курения (yes/no) |
 | region | регион проживания (southwest, southeast, northwest, northeast) |
 | charges | медицинские расходы, целевая переменная |
+## Структура проекта 
 
-## Структура проекта
-
+```text
 medical_cost_analysis/
 ├── MedicalCost_Analysis.ipynb
 ├── README.md
@@ -100,13 +100,16 @@ medical_cost_analysis/
     ├── correlation_heatmap.png
     ├── category_barplots.png
     └── feature_importance.png
-
-## Установка и запуск
+```
+# Установка и запуск 
 
 Клонирование репозитория:
 
+```bash
 git clone https://github.com/ваш-username/medical_cost_analysis.git
 cd medical_cost_analysis
+```
+
 Установка зависимостей:
 
 ```bash
