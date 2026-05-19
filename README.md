@@ -345,7 +345,23 @@ preprocessor = ColumnTransformer(
 - `SVR`.
 
 ## Оценка качества
+```bash
+best_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                                ('regressor', RandomForestRegressor(random_state=42))])
+best_pipeline.fit(X_train, y_train)
 
+y_pred_train = best_pipeline.predict(X_train)
+y_pred_test = best_pipeline.predict(X_test)
+
+def print_metrics(y_true, y_pred, name):
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    r2 = r2_score(y_true, y_pred)
+    print(f"{name}: MAE={mae:.2f}, RMSE={rmse:.2f}, R2={r2:.4f}")
+
+print_metrics(y_train, y_pred_train, "Train")
+print_metrics(y_test, y_pred_test, "Test")
+```
 Для оценки использовались метрики регрессии:
 
 - `MAE` - средняя абсолютная ошибка;
