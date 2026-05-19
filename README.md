@@ -76,8 +76,28 @@ charges
 
 ## Данные
 
-Датасет загружается напрямую из GitHub:
+Датасет загружается напрямую из GitHub и устанавливаем нужные библиотеки:
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+
+from scipy.stats import ttest_ind, pearsonr
+```
 ```python
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
@@ -146,11 +166,20 @@ jupyter notebook MedicalCost_Analysis.ipynb
 - логарифмирование целевой переменной для анализа.
 
 Примеры созданных признаков:
-
+```bash
+df['bmi_category'] = pd.cut(df['bmi'], bins=[0, 18.5, 25, 30, 100],
+                            labels=['Underweight', 'Normal', 'Overweight', 'Obese'])
+df['age_group'] = pd.cut(df['age'], bins=[0, 30, 50, 100],
+                         labels=['Young', 'Middle', 'Senior'])
+df['smoker_bmi_interaction'] = df['smoker'].apply(lambda x: 1 if x == 'yes' else 0) * df['bmi']
+df['has_children'] = (df['children'] > 0).astype(int)
+df['log_charges'] = np.log1p(df['charges'])
+ ```
 - `bmi_category` (Underweight, Normal, Overweight, Obese);
 - `age_group` (Young, Middle, Senior);
 - `smoker_bmi_interaction` (произведение статуса курения на ИМТ);
 - `has_children` (есть ли дети).
+
 
 ## EDA
 
@@ -163,26 +192,103 @@ jupyter notebook MedicalCost_Analysis.ipynb
 - средние расходы по полу, региону и наличию детей.
 
 ### Примеры визуализаций из проекта:
+```bash
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+sns.histplot(df['charges'], bins=50, kde=True, ax=axes[0])
+axes[0].set_title('Распределение charges (исходное)')
+axes[0].set_xlabel('Медицинские расходы')
+
+sns.histplot(df['log_charges'], bins=50, kde=True, color='green', ax=axes[1])
+axes[1].set_title('Распределение log(charges)')
+axes[1].set_xlabel('Логарифм расходов')
+
+plt.tight_layout()
+plt.savefig('figures/distribution_charges.png', dpi=150, bbox_inches='tight')
+plt.show()
+```
 
 ![Распределение медицинских расходов](figures/distribution_charges.png)
 
 *Рисунок 1. Распределение исходных и логарифмированных медицинских расходов*
 
+```bash
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df, x='smoker', y='charges', palette='Set2')
+plt.title('Распределение расходов в зависимости от курения')
+plt.xlabel('Курит?')
+plt.ylabel('Медицинские расходы')
+plt.savefig('figures/smoker_boxplot.png', dpi=150, bbox_inches='tight')
+plt.show()
+```
+
 ![Влияние курения на расходы](figures/smoker_boxplot.png)
 
 *Рисунок 2. Сравнение расходов курящих и некурящих клиентов*
+
+
+```bash
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+
+sns.scatterplot(data=df, x='age', y='charges', hue='smoker', alpha=0.6, ax=axes[0])
+axes[0].set_title('Расходы vs Возраст')
+axes[0].set_xlabel('Возраст')
+axes[0].set_ylabel('Расходы')
+
+sns.scatterplot(data=df, x='bmi', y='charges', hue='smoker', alpha=0.6, ax=axes[1])
+axes[1].set_title('Расходы vs ИМТ')
+axes[1].set_xlabel('BMI')
+axes[1].set_ylabel('Расходы')
+
+plt.tight_layout()
+plt.savefig('figures/age_bmi_scatter.png', dpi=150, bbox_inches='tight')
+plt.show()
+```
 
 ![Зависимость расходов от возраста и ИМТ](figures/age_bmi_scatter.png)
 
 *Рисунок 3. Влияние возраста и индекса массы тела на медицинские расходы*
 
+
+```bash
+numeric_cols = ['age', 'bmi', 'children', 'charges']
+corr = df[numeric_cols].corr()
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr, annot=True, cmap='coolwarm', center=0, fmt='.2f')
+plt.title('Корреляционная матрица числовых признаков')
+plt.savefig('figures/correlation_heatmap.png', dpi=150, bbox_inches='tight')
+plt.show()
+```
+
 ![Корреляционная матрица](figures/correlation_heatmap.png)
 
 *Рисунок 4. Корреляции между числовыми признаками*
 
+```bash
+fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+
+sns.barplot(data=df, x='sex', y='charges', errorbar=None, palette='pastel', ax=axes[0])
+axes[0].set_title('Средние расходы по полу')
+
+sns.barplot(data=df, x='region', y='charges', errorbar=None, palette='pastel', ax=axes[1])
+axes[1].set_title('Средние расходы по региону')
+
+sns.barplot(data=df, x=df['has_children'].map({0:'Нет детей', 1:'Есть детей'}),
+            y='charges', errorbar=None, palette='pastel', ax=axes[2])
+axes[2].set_title('Средние расходы: дети vs нет')
+
+plt.tight_layout()
+plt.savefig('figures/category_barplots.png', dpi=150, bbox_inches='tight')
+plt.show()
+```
+
 ![Средние расходы по категориям](figures/category_barplots.png)
 
 *Рисунок 5. Сравнение средних расходов по полу, региону и наличию детей*
+
+
+
 
 ### Итоги EDA 
 
@@ -191,6 +297,43 @@ jupyter notebook MedicalCost_Analysis.ipynb
 3. **Пол и регион значимо не влияют** на средние страховые выплаты.
 
 ## Моделирование
+
+```bash
+features = ['age', 'sex', 'bmi', 'children', 'smoker', 'region',
+            'bmi_category', 'age_group', 'smoker_bmi_interaction', 'has_children']
+target = 'charges'
+
+X = df[features]
+y = df[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"Обучающая выборка: {X_train.shape}")
+print(f"Тестовая выборка: {X_test.shape}")
+```
+
+```bash
+categorical_features = ['sex', 'smoker', 'region', 'bmi_category', 'age_group']
+numeric_features = ['age', 'bmi', 'children', 'smoker_bmi_interaction', 'has_children']
+
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler())
+])
+
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore', drop='first'))
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
+    ])
+```
+
+
 
 Были обучены несколько моделей:
 
@@ -210,6 +353,22 @@ jupyter notebook MedicalCost_Analysis.ipynb
 - `R2` - доля объясненной дисперсии.
 
 Сравнение моделей:
+```bash
+models = {
+    'LinearRegression': LinearRegression(),
+    'DecisionTree': DecisionTreeRegressor(random_state=42),
+    'RandomForest': RandomForestRegressor(random_state=42, n_jobs=-1)
+}
+
+results = {}
+for name, model in models.items():
+    pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', model)])
+    scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring='r2')
+    results[name] = scores.mean()
+    print(f"{name}: R2 = {scores.mean():.4f} (+/- {scores.std():.4f})")
+
+best_model_name = max(results, key=results.get)
+```
 
 | Модель | MAE | RMSE | R2 |
 |--------|-----|------|----|
@@ -223,9 +382,24 @@ jupyter notebook MedicalCost_Analysis.ipynb
 Лучший результат показала ансамблевая модель `RandomForestRegressor`.
 
 ## Подбор гиперпараметров
+```bash
+param_grid = {
+    'regressor__n_estimators': [100, 200],
+    'regressor__max_depth': [10, 20, None],
+    'regressor__min_samples_split': [2, 5]
+}
 
+grid_search = GridSearchCV(best_pipeline, param_grid, cv=5, scoring='r2', verbose=1)
+grid_search.fit(X_train, y_train)
+
+print(f"\nЛучшие параметры: {grid_search.best_params_}")
+print(f"Лучший R2 на CV: {grid_search.best_score_:.4f}")
+
+best_model_tuned = grid_search.best_estimator_
+y_pred_tuned = best_model_tuned.predict(X_test)
+print_metrics(y_test, y_pred_tuned, "Test после тюнинга")
 Для лучшей модели (RandomForest) был выполнен подбор гиперпараметров через GridSearchCV. Лучшие параметры:
-
+```
 ```text
 n_estimators: 200
 max_depth: 10
@@ -248,7 +422,30 @@ R2: 0.899
 ```
 
 ## Интерпретация модели
+```bash
+rf_model = best_model_tuned.named_steps['regressor']
 
+feature_names = (numeric_features +
+                 list(best_model_tuned.named_steps['preprocessor']
+                      .named_transformers_['cat']
+                      .named_steps['onehot']
+                      .get_feature_names_out(categorical_features)))
+
+importances = rf_model.feature_importances_
+indices = np.argsort(importances)[::-1]
+
+plt.figure(figsize=(10, 6))
+plt.title("Важность признаков", fontsize=14)
+plt.bar(range(len(importances)), importances[indices], align='center')
+plt.xticks(range(len(importances)), np.array(feature_names)[indices], rotation=90)
+plt.tight_layout()
+plt.savefig('figures/feature_importance.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+print("Топ-5 важных признаков:")
+for i in range(5):
+    print(f"{i+1}. {feature_names[indices[i]]}: {importances[indices[i]]:.4f}")
+```
 Для интерпретации была рассчитана важность признаков на модели `RandomForestRegressor`.
 
 ![Важность признаков](figures/feature_importance.png)
@@ -268,7 +465,26 @@ R2: 0.899
 **Вывод:** самым сильным фактором для прогноза медицинских расходов является взаимодействие курения и индекса массы тела (`smoker_bmi_interaction`). Это означает, что наибольший риск представляют курящие люди с высоким ИМТ. Также важны возраст и сам по себе ИМТ.
 
 ## Проверка гипотез
+```bash
+# Гипотеза 1: курящие vs некурящие
+smoker_yes = df[df['smoker'] == 'yes']['charges']
+smoker_no = df[df['smoker'] == 'no']['charges']
+t_stat, p_value = ttest_ind(smoker_yes, smoker_no)
+print(f"Курящие vs некурящие: p-value = {p_value:.2e}")
+print(" Гипотеза подтверждена: курящие тратят больше")
 
+# Гипотеза 2: корреляция возраста
+corr_age, p_age = pearsonr(df['age'], df['charges'])
+print(f"Корреляция возраста и расходов: {corr_age:.3f}, p-value = {p_age:.2e}")
+print(" С возрастом расходы растут")
+
+# Гипотеза 3: ожирение
+obese = df[df['bmi'] > 30]['charges']
+non_obese = df[df['bmi'] <= 30]['charges']
+t_stat2, p_value2 = ttest_ind(obese, non_obese)
+print(f"Ожирение vs норма: p-value = {p_value2:.4f}")
+print(" Люди с ожирением тратят больше")
+```
 В проекте были проверены следующие статистические гипотезы:
 
 ### Гипотеза 1: Курящие имеют более высокие расходы, чем некурящие
@@ -291,7 +507,23 @@ R2: 0.899
 - ансамблевые модели (RandomForest) дают более высокое качество, чем простые baseline-подходы.
 
 ## Итоги
+```bash
+comparison = []
+for name, model in models.items():
+    pipe = Pipeline([('preprocessor', preprocessor), ('regressor', model)])
+    pipe.fit(X_train, y_train)
+    y_pred = pipe.predict(X_test)
+    comparison.append({
+        'Model': name,
+        'MAE': round(mean_absolute_error(y_test, y_pred), 2),
+        'RMSE': round(np.sqrt(mean_squared_error(y_test, y_pred)), 2),
+        'R2': round(r2_score(y_test, y_pred), 4)
+    })
 
+comparison_df = pd.DataFrame(comparison).sort_values('R2', ascending=False)
+print("Сравнение моделей:")
+comparison_df
+```
 В проекте построен полный ML-пайплайн для прогнозирования медицинских расходов. Лучшей моделью стала `RandomForestRegressor`, которая достигла:
 
 ```text
