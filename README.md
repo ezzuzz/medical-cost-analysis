@@ -75,7 +75,30 @@ charges
 Бизнес-смысл задачи: прогнозирование медицинских расходов помогает страховой компании устанавливать адекватную стоимость полисов, выявлять группы риска и управлять финансовыми резервами.
 
 ## Данные
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+
+from scipy.stats import ttest_ind, pearsonr
+
+sns.set_style("whitegrid")
+plt.rcParams['figure.figsize'] = (12, 6)
+
+print(" Библиотеки загружены")
 Датасет загружается напрямую из GitHub:
 
 ```python
