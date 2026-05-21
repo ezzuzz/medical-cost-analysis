@@ -102,6 +102,16 @@ from scipy.stats import ttest_ind, pearsonr
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
 ```
+## Загруженные данные
+Размер данных: (1338, 7)
+
+| age | sex | bmi | children | smoker | region | charges |
+|-----|-----|-----|----------|--------|--------|---------|
+| 19 | female | 27.900 | 0 | yes | southwest | 16884.92400 |
+| 18 | male | 33.770 | 1 | no | southeast | 1725.55230 |
+| 28 | male | 33.000 | 3 | no | southeast | 4449.46200 |
+| 33 | male | 22.705 | 0 | no | northwest | 21984.47061 |
+| 32 | male | 28.880 | 0 | no | northwest | 3866.85520 |
 
 Основные поля датасета:
 
@@ -179,6 +189,16 @@ df['log_charges'] = np.log1p(df['charges'])
 - `age_group` (Young, Middle, Senior);
 - `smoker_bmi_interaction` (произведение статуса курения на ИМТ);
 - `has_children` (есть ли дети).
+
+## Данные с новыми признаками
+
+| age | sex | bmi | children | smoker | region | charges | bmi_category | age_group | smoker_bmi_interaction | has_children | log_charges |
+|-----|-----|-----|----------|--------|--------|---------|--------------|-----------|----------------------|--------------|-------------|
+| 19 | female | 27.900 | 0 | yes | southwest | 16884.92400 | Overweight | Young | 27.9 | 0 | 9.734236 |
+| 18 | male | 33.770 | 1 | no | southeast | 1725.55230 | Obese | Young | 0.0 | 1 | 7.453882 |
+| 28 | male | 33.000 | 3 | no | southeast | 4449.46200 | Obese | Young | 0.0 | 1 | 8.400763 |
+| 33 | male | 22.705 | 0 | no | northwest | 21984.47061 | Normal | Middle | 0.0 | 0 | 9.998137 |
+| 32 | male | 28.880 | 0 | no | northwest | 3866.85520 | Overweight | Middle | 0.0 | 0 | 8.260455 |
 
 
 ## EDA
