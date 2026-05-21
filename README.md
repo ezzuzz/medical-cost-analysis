@@ -86,7 +86,7 @@ from scipy.stats import ttest_ind, pearsonr
 url = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
 df = pd.read_csv(url)
 ```
-## Загруженные данные
+
 Размер данных: (1338, 7)
 
 | age | sex | bmi | children | smoker | region | charges |
